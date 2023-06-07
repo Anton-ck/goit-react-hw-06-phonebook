@@ -1,9 +1,20 @@
 import PropTypes from 'prop-types';
 import { nanoid } from 'nanoid';
 import { Filter, FilterInput, FilterLabel } from './Filter.styled';
+import { filter } from 'redux/filterSlice';
+import { useDispatch, useSelector } from 'react-redux';
 
-const FilterName = ({ filterValue, handleFilterChange }) => {
+const FilterName = () => {
   const filterId = nanoid();
+
+  const filtered = useSelector(state => state.filter);
+  const dispatch = useDispatch();
+
+  const handleFilterChange = e => {
+    dispatch(filter(e.currentTarget.value));
+  };
+
+
 
   return (
     <Filter>
@@ -13,7 +24,7 @@ const FilterName = ({ filterValue, handleFilterChange }) => {
         type="text"
         id={filterId}
         name="filter"
-        value={filterValue}
+        value={filtered}
         onChange={handleFilterChange}
       ></FilterInput>
     </Filter>

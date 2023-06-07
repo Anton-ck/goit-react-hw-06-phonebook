@@ -9,10 +9,14 @@ import {
 import { nanoid } from 'nanoid';
 import { Formik } from 'formik';
 import * as yup from 'yup';
+import { addContact } from 'redux/contactsSlice';
+import { useDispatch, useSelector } from 'react-redux';
 
-const ContactForm = ({ onSubmit }) => {
+const ContactForm = () => {
   const nameID = nanoid();
   const numberID = nanoid();
+  const contacts = useSelector(state => state.contacts);
+  const dispatch = useDispatch();
 
   const initialValues = {
     name: '',
@@ -36,16 +40,25 @@ const ContactForm = ({ onSubmit }) => {
       .required(),
   });
 
-  const handleSubmit = (values, actions) => {
-    onSubmit(values);
+  const handlerFormSubmit = (values, actions) => {
+    const nameNormalized = values.name.toLowerCase();
+
+    const isNameAlreadyInContacts = contacts.find(
+      contact => contact.name.toLowerCase() === nameNormalized
+    );
+
+    if (isNameAlreadyInContacts) {
+      alert(`${values.name} is already in contacts.`);
+      return;
+    }
+    dispatch(addContact(values.name, values.number));
     actions.resetForm();
   };
-
   return (
     <Formik
       initialValues={initialValues}
       validationSchema={validationSchema}
-      onSubmit={handleSubmit}
+      onSubmit={handlerFormSubmit}
     >
       <FormContact autoComplete="off">
         <FormInputLabel htmlFor={nameID}>Name</FormInputLabel>
@@ -63,7 +76,7 @@ const ContactForm = ({ onSubmit }) => {
 };
 
 ContactForm.propTypes = {
-  onSubmit: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func,
 };
 
 export default ContactForm;

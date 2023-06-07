@@ -4,18 +4,32 @@ import {
   ConctactListItem,
   DeleteButton,
 } from './ContactList.styled';
+import { deleteContact } from 'redux/contactsSlice';
+import { useDispatch, useSelector } from 'react-redux';
 
-const ContactList = ({ contacts, deleteContact }) => {
+const ContactList = () => {
+  const contacts = useSelector(state => state.contacts);
+  const filtered = useSelector(state => state.filter);
+  const dispatch = useDispatch();
+
+const filteredContacts = (() => {
+  const normalizedFilter = filtered.toLowerCase();
+  return contacts.filter(({ name }) =>
+    name.toLowerCase().includes(normalizedFilter)
+  );
+})();
+  
+  
   return (
     <>
       <ContactsList>
-        {contacts.map(contact => (
+        {filteredContacts.map(contact => (
           <ConctactListItem key={contact.id}>
             {contact.name}: {contact.number}
             <DeleteButton
               type="button"
               onClick={() => {
-                deleteContact(contact.id);
+                dispatch(deleteContact(contact.id));
               }}
             >
               Delete
@@ -35,7 +49,7 @@ ContactList.propTypes = {
       number: PropTypes.string.isRequired,
     })
   ),
-  deleteContact: PropTypes.func.isRequired,
+  deleteContact: PropTypes.func,
 };
 
 export default ContactList;
